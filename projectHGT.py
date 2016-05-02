@@ -95,6 +95,26 @@ for opt, arg in opts:
 MaxTime=MaxGenerations*popsize
 if maxlenHGT==0: HGT_EVENT=False
 
+############################
+### Save options to file ###
+############################
+
+#now that we do not have the actual values in a file, it is handy to store the used options in a file for later reference
+parfile=fileout+'.par'
+pardata=open(parfile,'w')
+pardata.write("point mutations: "+str(POINT_MUT_EVENT)+"\n")
+pardata.write("HGT mutations: "+str(HGT_EVENT)+"\n")
+pardata.write("mutation of mutrate: "+str(MUT_MUTRATE)+"\n")
+pardata.write("mutation of HGT competence: "+str(MUT_COMPETENCE_EVENT)+"\n")
+pardata.write("\nGenome:\n")
+pardata.write("alphabet used: "+str(alphabet)+"\n")
+pardata.write("genome length: "+str(lengen)+"\n")
+pardata.write("maxfitness: "+str(maxfitness)+"\n")
+pardata.write("\ncommandline:\n")
+
+for opt, arg in opts:
+  pardata.write(opt+" "+arg+"\n")
+pardata.close()
 
 #################
 ### Functions ###
