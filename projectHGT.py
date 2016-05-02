@@ -10,7 +10,7 @@ things to do:
 6) make command line save file... and while you are at it also parameters
 '''
 
-import sys,math,os,random,string,math
+import sys,getopt, math,os,random,string,math
 import operator
 import functools
 
@@ -30,26 +30,75 @@ HGT_EVENT=True
 MUT_COMPETENCE_EVENT=False
 MUT_MUTRATE=False
 
-lengen=20
-maxfitness=float(lengen)
-popsize=2000
-MaxGenerations=10000
-MaxTime=MaxGenerations*popsize
-
-fileout="hgt_data.txt"
-
-lpop=[]
+#genome
 alphabet=['1','0']	#mutations and initialisation make use of this, this is extendable
-#maxlenHGT=lengen/2 - 1
-#maxlenHGT=lengen
+lengen=20	#genome length
+maxfitness=float(lengen)	#maximum fitness
+
+#initialize global lists
+lpop=[]   #population list
+toplot=[] #plotting data 
+lTime=[]  #also some plotting data
+
+################################
+### Read commandline options ###
+################################
+
+#default values:
+popsize=500
+MaxGenerations=5000
+maxlenHGT=lengen/2 - 1
+fileout="hgt_data.txt"
 init_competence=0.25
 init_mutrate=0.05
-toplot=[]
-lTime=[]
 
-maxlenHGT=int(sys.argv[1])
+try:
+  opts, args = getopt.getopt(sys.argv[1:],"hi:g:l:f:c:m:",["help","popsize=","MaxGen=","maxlenHGT=","fileout=","init_comp=","init_mut="])
+except getopt.GetoptError:
+  print 'projectHGT.py [--popsize,-i] [--MaxGen,-g] [--maxlenHGT, -l] [--fileout, -f] [--init_comp, -c] [--init_mut, -m]'
+  sys.exit(2)
+
+for opt, arg in opts:
+  if opt in ("-h", "--help"):
+    print 'projectHGT.py [--popsize,-i] [--MaxGen,-g] [--maxlenHGT, -l] [--fileout, -f] [--init_comp, -c] [--init_mut, -m]'
+    print 'default values:\n'
+    print 'popsize: '+str(popsize)
+    print 'MaxGenerations: '+str(MaxGenerations)
+    print 'MaxlengthHGT: '+str(maxlenHGT)
+    print 'fileout: '+fileout
+    print 'init_competence: '+str(init_competence)
+    print 'init_mutationrate: '+str(init_mutrate)
+
+    print '\nMutations:'
+    print 'point mutations: '+str(POINT_MUT_EVENT)
+    print 'HGT mutations: '+str(HGT_EVENT)
+    print 'Mut. of competence: '+str(MUT_COMPETENCE_EVENT)
+    print 'Mut. of mutrate: '+str(MUT_MUTRATE)
+    sys.exit()
+  elif opt in ("-i", "--popsize"):
+    popsize=int(arg)
+  elif opt in ("--MaxGen","-g"):
+    MaxGenerations=int(arg)
+  elif opt in ("--maxlenHGT", "-l"):
+    maxlenHGT=int(arg)
+  elif opt in ("--fileout", "-f"):
+    fileout=arg
+  elif opt in ("--init_comp", "-c"):
+    init_competence=float(arg)
+  elif opt in ("--init_mut", "-m"):
+    init_mutrate=float(arg)
+  else:
+    print 'Unrecognised option, ignored.'
+
+
+#derived parameters
+MaxTime=MaxGenerations*popsize
 if maxlenHGT==0: HGT_EVENT=False
 
+
+#################
+### Functions ###
+#################
 
 def Fitness(genome):
   score=sum( [int(pos) for pos in genome ] )
@@ -102,7 +151,7 @@ def PrintEntropy(Time, lpop):
   avcomp=sum( x[2] for x in lpop )/fpopsize
   avmutrate=sum( x[3] for x in lpop )/fpopsize
   #print "Time",Time,"Entropy",entropy,"Fittest guy",bestfit
-  #print "Time",Time, "D",lS, "av cmp", avcomp, "av mut",avmutrate, "S", entropy
+  print "Time",Time, "D",lS, "av cmp", avcomp, "av mut",avmutrate, "S", entropy
     
   toplot.append([Time,[x/fpopsize for x in lS], avcomp,avmutrate,entropy])
   #print toplot, lS
